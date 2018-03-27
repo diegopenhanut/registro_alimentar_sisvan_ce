@@ -1,0 +1,120 @@
+# load libraries
+
+```{r libraries}
+library(tidyverse)
+library(readxl)
+library(knitr)
+```
+
+# Teste de funções
+
+```{r testing stuff}
+
+```
+
+# Funções
+
+```{r funcoes}
+
+
+read_sisvan <- function (csv_file) {
+
+	print(paste("lendo", csv_file, ""))
+	header <- readLines(csv_file,
+						n = 15, encoding = "latin1")
+
+	frases_br <- "([a-zA-Zà-úÀ-Ú0-9\\s\\/]+)"
+	output <- read_csv(csv_file,
+					   skip = 529, 
+					   n_max = 165, 
+					   na = c("", "-", "NA"),
+					   col_names = c("regiao", 
+									 "codigo_uf",
+									 "uf",
+									 "codigo_ibge",	
+									 "municipio",
+									 "total",
+									 "porcentagem",
+									 "avaliados"),
+					   )
+
+	output$regiao <- as.factor(output$regiao)
+	output$uf <- as.factor(output$uf)
+	output$municipio <- as.factor(output$municipio)
+
+	cbind.data.frame(output,
+					 "abrangencia" = 
+						 str_match(string = header[4], pattern = paste0(": ([^,]+)"))[2],
+					 "ano" = 
+						 str_extract(string = header[5], pattern = "[0-9]+"),
+					 "mes" =
+						 str_match(string = header[5], pattern = "Mês: ([a-zA-Z]+),")[2],
+					 "faixa_etaria" = 
+						 str_match(string = header[6], pattern = ": ([a-zA-Z]+),")[2],
+					 "sexo" = 
+						 str_match(string = header[7], pattern = paste0(": ", frases_br, ","))[2],
+					 "raca_cor" = 
+						 str_match(string = header[8], pattern = paste0(": ([^,]+)"))[2],
+					 "povo_comunidade" = 
+						 str_match(string = header[9], pattern = paste0(": ([^,]+)"))[2],
+					 "escolaridade" = 
+						 str_match(string = header[10], pattern = paste0(": ([^,]+)"))[2],
+					 "variavel" =
+						 str_match(string = header[14], pattern = paste0(',"?', frases_br, ","))[2],
+					 "povo" = 
+						 str_match(string = header[9], pattern = paste0(": ([^,]+)"))[2]
+					 )
+
+} 
+#range = "A16:H20")
+```
+
+# Run
+
+
+```{r run}
+
+# Get list of files
+lista_arquivos <- list.files("dados", full.names = T, pattern = "*.csv")
+lista_arquivos
+# Read data
+dados_arquivos <- lapply(X = lista_arquivos, read_sisvan)
+
+# Merge
+tab <- do.call(what = rbind, args = dados_arquivos)
+
+
+# Summarize
+
+summary(tab)
+table(tab$variavel)
+
+# número de missing
+n_municipios <- length(unique(tab$municipio))  
+
+resumo <- tab %>% 
+	group_by(variavel, ano) %>%
+	summarise("porcentagem_incompletos" = sum(avaliados == 0) / n_municipios)
+
+# todos os grupos possuem o mesmo número de registros, com o mesmo número de missing
+# isso quer dizer que não são registrados formulários incompletos
+
+resumo %>% kable()
+
+ggplot(resumo, aes(x = ano, y = porcentagem_incompletos)) +
+	geom_bar(position = "dodge", stat = "identity") +
+	facet_wrap( ~ variavel)
+
+
+# retirar "variavel" e manter número de atendimentos
+
+tab <- tab %>%
+	filter(variavel == "Consumo de feijão") %>%
+	select(-variavel)
+
+write.table(x = tab, 
+			file = "output/tidy.data.tsv",
+			sep = "\t",
+			row.names = F)
+
+```
