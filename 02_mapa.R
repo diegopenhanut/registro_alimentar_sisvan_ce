@@ -7,6 +7,7 @@ library("geojsonio")
 # install.packages("rgdal", type = "source")
 # install.packages("rgeos", type = "source")
 library("leaflet")
+library("htmlwidgets")
 
 ce <- geojson_read("dados/ce-municipalities.json", what = "sp")
 
@@ -41,7 +42,7 @@ pal <- colorNumeric("OrRd", NULL)
 
 
 # 2015
-leaflet(ce)  %>% 
+mapa_2015 <- leaflet(ce)  %>% 
 	addTiles() %>%
 	addPolygons(stroke = T, weight = 1, 
 				smoothFactor = 0.3,
@@ -54,7 +55,7 @@ leaflet(ce)  %>%
 	)
 
 # 2016
-leaflet(ce)  %>% 
+mapa_2016 <- leaflet(ce)  %>% 
 	addTiles() %>%
 	addPolygons(stroke = T, weight = 1, 
 				smoothFactor = 0.3,
@@ -68,7 +69,7 @@ leaflet(ce)  %>%
 
 
 # 2017
-leaflet(ce)  %>% 
+mapa_2017 <- leaflet(ce)  %>% 
 	addTiles() %>%
 	addPolygons(stroke = T, weight = 1, 
 				smoothFactor = 0.3,
@@ -79,3 +80,9 @@ leaflet(ce)  %>%
 	addLegend(pal = pal, values = ~ano_2017, opacity = 1.0
     #labFormat = labelFormat(transform = function(x) round(10))
 	)
+
+# salvar mapas
+
+saveWidget(widget = mapa_2015, file = "mapa_2015.html", selfcontained = T)
+saveWidget(widget = mapa_2016, file = "mapa_2016.html", selfcontained = T)
+saveWidget(widget = mapa_2017, file = "mapa_2017.html", selfcontained = T)
