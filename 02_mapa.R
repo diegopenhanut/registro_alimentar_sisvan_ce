@@ -38,7 +38,7 @@ ce$ano_2015[muni_order] <- ano2015$total
 ce$ano_2016[muni_order] <- ano2016$total
 ce$ano_2017[muni_order] <- ano2017$total
 
-pal <- colorNumeric("OrRd", NULL)
+pal <- colorNumeric("OrRd", c(0, 130))
 
 
 # 2015
@@ -50,9 +50,13 @@ mapa_2015 <- leaflet(ce)  %>%
 				fillColor = ~pal(as.numeric(ano_2015)),
 				label = ~paste0(name, ": ", formatC(ano_2015, big.mark = ","))
 				) %>%
-	addLegend(pal = pal, values = ~ano_2015, opacity = 1.0
-    #labFormat = labelFormat(transform = function(x) round(10))
+	addLegend(pal = pal, 
+			  values = ~c(0, 130),
+			  opacity = 1.0,
+			  title = "Número de registros alimentares <br> SISVAN <br> 2015"
 	)
+
+mapa_2015
 
 # 2016
 mapa_2016 <- leaflet(ce)  %>% 
@@ -63,10 +67,13 @@ mapa_2016 <- leaflet(ce)  %>%
 				fillColor = ~pal(as.numeric(ano_2016)),
 				label = ~paste0(name, ": ", formatC(ano_2016, big.mark = ","))
 				) %>%
-	addLegend(pal = pal, values = ~ano_2016, opacity = 1.0
-    #labFormat = labelFormat(transform = function(x) round(10))
+	addLegend(pal = pal, 
+			  values = ~c(0, 130),
+			  opacity = 1.0,
+			  title = "Número de registros alimentares <br> SISVAN <br> 2016"
 	)
 
+mapa_2016
 
 # 2017
 mapa_2017 <- leaflet(ce)  %>% 
@@ -77,10 +84,13 @@ mapa_2017 <- leaflet(ce)  %>%
 				fillColor = ~pal(as.numeric(ano_2017)),
 				label = ~paste0(name, ": ", formatC(ano_2017, big.mark = ","))
 				) %>%
-	addLegend(pal = pal, values = ~ano_2017, opacity = 1.0
-    #labFormat = labelFormat(transform = function(x) round(10))
+	addLegend(pal = pal, 
+			  values = ~c(0, 130),
+			  opacity = 1.0,
+			  title = "Número de registros alimentares <br> SISVAN <br> 2017"
 	)
 
+mapa_2017
 # salvar mapas
 
 saveWidget(widget = mapa_2015, file = "mapa_2015.html", selfcontained = T)
